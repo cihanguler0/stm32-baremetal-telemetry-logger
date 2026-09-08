@@ -8,6 +8,5 @@
 void Sensor_Init(void);
 int16_t Sensor_ReadTemperature(void);
 bool Sensor_IsCritical(int16_t temp);
-void Hardware_Simulate_SetTemperature(int16_t raw_temp);
 
 #endif
