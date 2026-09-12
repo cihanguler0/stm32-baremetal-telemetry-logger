@@ -49,3 +49,33 @@ void Sensor_Init(void) {
     /* Step 5: Activate ADC. (ADON: Bit 0) */
     ADC1_CR2 |= (1UL << 0);
 }
+
+int16_t Sensor_ReadTemperature(void) {
+
+    /* Step 6: Software Start. Means "Start Measuring Temperature" (SWSTART: Bit 30) */
+    ADC1_CR2 |= (1UL << 30);
+
+    /* Step 7: ADC1_SR holds the flags (EOC: Bit 1)
+       *EOC: 1 means result is ready in register. Automatically becomes 1 when conversation has done.
+       *& means AND in logic design. We check only the true (1) bits.
+       *With this, CPU checksthis line until EOC = 1 */
+    while (!(ADC1_SR & (1UL << 1)));
+
+    /* *Step 8: ADC1_DR is the data register address which the result is written
+       *Only the first 12-bit is meaningful, that's why we mask it with 0x0FFF
+       *Result is only digital right now. */
+    uint16_t raw_adc = (uint16_t)(ADC1_DR & 0x0FFF);
+
+    /*
+     Step 9: The result we get from the sensor is a meaningless number between 0-4095
+     *But there is a linear relationship between the number and 3.3 volts.
+     *That's why we multiply it with 3300 and then divide it to 4095, to get result in mV.
+     *Temperature (°C) = ((V_SENSE - V25) / Avg_Slope) + 25 formula is given in the datasheet to convert voltage
+     to temperature.
+     */
+    int32_t v_sense_mv = ((int32_t)raw_adc * 3300) / 4095;
+    int16_t temp_c_x10 = (int16_t)(((v_sense_mv - 760) * 10) / 25 + 250);
+
+    /* We return it in int16_t fromat, because in this way we can show it in 0.1C sensivity. */
+    return temp_c_x10;
+}
