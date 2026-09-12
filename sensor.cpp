@@ -79,3 +79,9 @@ int16_t Sensor_ReadTemperature(void) {
     /* We return it in int16_t fromat, because in this way we can show it in 0.1C sensivity. */
     return temp_c_x10;
 }
+
+bool Sensor_IsCritical(int16_t temp) {
+
+    /* Checks if the current temperature level is critical. */
+    return (temp >= TEMP_CRITICAL_THRESHOLD_C_X10);
+}
