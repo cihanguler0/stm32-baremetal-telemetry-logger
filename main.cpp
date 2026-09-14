@@ -1,6 +1,7 @@
 #include "ring_buffer.h"
 #include "fsm.h"
 #include "cli.h"
+#include "bsp_uart.h"
 
 /* *We use the E address because SysTick is not in peripheral area, it's in core area. */
 #define SYSTICK_BASE            (0xE000E010UL)
@@ -56,6 +57,7 @@ static void SysTick_Init(void) {
 
 int main(void) {
     SysTick_Init();
+    UART1_Init();
     RingBuffer_Init(&rx_buffer);
     FSM_Init(&sys_context);
     CLI_Init(&rx_buffer, &sys_context);
